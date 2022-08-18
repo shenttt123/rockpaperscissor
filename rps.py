@@ -3,7 +3,7 @@ from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 import random
 import math
 step = 0.3
-num_pairs = 1
+num_pairs = 5
 ###############################################
 paths = ['rock.jpg', 'paper.jpg', 'scissor.jpg']
 plt.rcParams["figure.figsize"] = [5, 4.5]
@@ -46,9 +46,14 @@ class oneset():
 
 
 rpssets = []
+i=0
 for i in range(num_pairs):
     rpssets.append(oneset())
-
+    i+=1
+    print('i is',i)
+print(rpssets[4].x)
+while 1:
+    0
 while True:
 
     for i in range(num_pairs):
@@ -60,7 +65,7 @@ while True:
             ab[count] = AnnotationBbox(getImage(path), (x0, y0), frameon=False)
             axes.add_artist(ab[count])
             count += 1
-    plt.pause(0.1)
-    plt.draw()
+        plt.pause(0.1)
+        plt.draw()
     for v in ab:
         axes.artists.remove(v)
