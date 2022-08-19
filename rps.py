@@ -4,10 +4,12 @@ import matplotlib.pyplot as plt
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 import random
 
-speed = 2  # min is 2
-num_of_rock = 3
-num_of_paper = 8
-num_of_scissor = 8
+from matplotlib.widgets import TextBox
+
+speed = 20  # min is 2
+num_of_rock = 30
+num_of_paper = 1
+num_of_scissor = 2
 
 step = 0.05
 Zoom = 0.08
@@ -89,7 +91,6 @@ def driver(*args):
 
 
 def checkcollision(a: rps, b: rps):
-    print(a.name, b.name)
     if a.name == 'rock' and b.name == 'scissor':
         if abs(a.x - b.x) < collisionsize and abs(a.y - b.y) < collisionsize:
             print("rock and scissor collide")
@@ -122,17 +123,54 @@ def checkcollision(a: rps, b: rps):
             b.filename = 'scissor.jpg'
 
 
-fig, ax = plt.subplots(figsize=(10, 10))
+def submitr(text):
+    global num_of_rock, rocklist, rbox
+    for i in range(text):
+        rocklist.append(rps('rock'))
+        num_of_rock += 1
+        rbox.append(AnnotationBbox(OffsetImage(plt.imread(rocklist[i].filename), zoom=Zoom),
+                                   (rocklist[i].x, rocklist[i].y), frameon=False))
 
-ax.axes.xaxis.set_visible(False)
-ax.axes.yaxis.set_visible(False)
+
+def submitp(text):
+    global num_of_paper, paperlist, pbox
+    for i in range(text):
+        paperlist.append(rps('paper'))
+        num_of_paper += 1
+        pbox.append(AnnotationBbox(OffsetImage(plt.imread(paperlist[i].filename), zoom=Zoom),
+                                   (paperlist[i].x, paperlist[i].y), frameon=False))
+
+
+def submits(text):
+    global num_of_scissor, scissorlist, sbox
+    for i in range(text):
+        scissorlist.append(rps('scissor'))
+        num_of_scissor += 1
+        sbox.append(AnnotationBbox(OffsetImage(plt.imread(scissorlist[i].filename), zoom=Zoom),
+                                   (scissorlist[i].x, scissorlist[i].y), frameon=False))
+
+
+fig, axes = plt.subplots(figsize=(10, 10))
+plt.subplots_adjust(bottom=0.2)
+
+rtext_box = TextBox(plt.axes([0.1, 0.1, 0.05, 0.05]), 'scissor')
+rtext_box.on_submit(submitr)
+ptext_box = TextBox(plt.axes([0.45, 0.1, 0.05, 0.05]), 'scissor')
+ptext_box.on_submit(submitp)
+stext_box = TextBox(plt.axes([0.8, 0.1, 0.05, 0.05]), 'scissor')
+stext_box.on_submit(submits)
+
+axes.xaxis.set_visible(False)
+axes.yaxis.set_visible(False)
+axes.margins(1000 * (1 + winadjust))
 plt.xlim([0 - xlim * winadjust, xlim * (1 + winadjust)])
 plt.ylim([0 - ylim * winadjust, ylim * (1 + winadjust)])
+axes.set_ylim(bottom=-3)
+axes.set_xlim(left=-3)
 
 rocklist = []
 paperlist = []
 scissorlist = []
-
 
 for i in range(num_of_rock):
     rocklist.append(rps('rock'))
@@ -141,41 +179,48 @@ for i in range(num_of_paper):
 for i in range(num_of_scissor):
     scissorlist.append(rps('scissor'))
 
-
-rbox = [0] * num_of_rock
-pbox = [0] * num_of_paper
-sbox = [0] * num_of_scissor
+rbox = []
+pbox = []
+sbox = []
 while True:
     allobj = []
     for i in range(num_of_rock):
         rocklist[i].update()
         allobj.append(rocklist[i])
-        rbox[i] = AnnotationBbox(OffsetImage(plt.imread(rocklist[i].filename), zoom=Zoom),
-                                 (rocklist[i].x, rocklist[i].y), frameon=False)
-        ax.add_artist(rbox[i])
+        rbox.append(AnnotationBbox(OffsetImage(plt.imread(rocklist[i].filename), zoom=Zoom),
+                                   (rocklist[i].x, rocklist[i].y), frameon=False))
+        axes.add_artist(rbox[i])
 
     for i in range(num_of_paper):
         paperlist[i].update()
         allobj.append(paperlist[i])
-        pbox[i] = AnnotationBbox(OffsetImage(plt.imread(paperlist[i].filename), zoom=Zoom),
-                                 (paperlist[i].x, paperlist[i].y), frameon=False)
-        ax.add_artist(pbox[i])
+        pbox.append(AnnotationBbox(OffsetImage(plt.imread(paperlist[i].filename), zoom=Zoom),
+                                   (paperlist[i].x, paperlist[i].y), frameon=False))
+        axes.add_artist(pbox[i])
 
     for i in range(num_of_scissor):
         scissorlist[i].update()
         allobj.append(scissorlist[i])
-        sbox[i] = AnnotationBbox(OffsetImage(plt.imread(scissorlist[i].filename), zoom=Zoom),
-                                 (scissorlist[i].x, scissorlist[i].y), frameon=False)
-        ax.add_artist(sbox[i])
+        sbox.append(AnnotationBbox(OffsetImage(plt.imread(scissorlist[i].filename), zoom=Zoom),
+                                   (scissorlist[i].x, scissorlist[i].y), frameon=False))
+        axes.add_artist(sbox[i])
 
     driver(allobj)
 
     plt.pause(0.01)
     plt.draw()
 
-    for i in range(num_of_rock):
-        ax.artists.remove(rbox[i])
-    for i in range(num_of_paper):
-        ax.artists.remove(pbox[i])
-    for i in range(num_of_scissor):
-        ax.artists.remove(sbox[i])
+
+    try:
+        for value in rbox:
+            axes.artists.remove(value)
+        for value in pbox:
+            axes.artists.remove(value)
+        for value in sbox:
+            axes.artists.remove(value)
+    except:
+        pass
+
+    rbox.clear()
+    pbox.clear()
+    sbox.clear()
