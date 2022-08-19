@@ -4,18 +4,18 @@ import matplotlib.pyplot as plt
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 import random
 
-speed = 3  # min is 2
-num_of_pairs = 3
+speed = 2  # min is 2
+num_of_rock = 3
+num_of_paper = 8
+num_of_scissor = 8
 
-step = 1
+step = 0.05
 Zoom = 0.08
 xlim = 100
 ylim = 100
 collisionsize = xlim / 20
 winadjust = 0.025  # zoom out(1 + winadjust)%
 speedrange = math.ceil(math.sqrt((speed ** 2) / 2))
-
-
 
 
 def getrandomsign():
@@ -39,20 +39,20 @@ class rps:
         if name == 'rock':
             self.x = random.randrange(0, int(xlim * 0.05))
             self.y = random.randrange(0, int(ylim * 0.05))
-            self.dir_x = random.randrange(1, speedrange)
-            self.dir_y = getanotherspeed(self.dir_x)
+            self.dir_x = random.randrange(1, speedrange) * getrandomsign()
+            self.dir_y = getanotherspeed(self.dir_x) * getrandomsign()
             self.filename = 'rock.jpg'
         if name == 'paper':
             self.x = random.randrange(int(xlim * 0.95), xlim)
             self.y = random.randrange(int(ylim * 0.95), xlim)
-            self.dir_x = random.randrange(1, speedrange)
-            self.dir_y = getanotherspeed(self.dir_x)
+            self.dir_x = random.randrange(1, speedrange) * getrandomsign()
+            self.dir_y = getanotherspeed(self.dir_x) * getrandomsign()
             self.filename = 'paper.jpg'
         if name == 'scissor':
             self.x = random.randrange(int(xlim * 0.525), int(xlim * 0.675))
             self.y = random.randrange(int(xlim * 0.525), int(ylim * 0.675))
-            self.dir_x = random.randrange(1, speedrange)
-            self.dir_y = getanotherspeed(self.dir_x)
+            self.dir_x = random.randrange(1, speedrange) * getrandomsign()
+            self.dir_y = getanotherspeed(self.dir_x) * getrandomsign()
             self.filename = 'scissor.jpg'
 
     def update(self):
@@ -81,37 +81,45 @@ class rps:
 
 
 def driver(*args):
-    print('driver....')
+    idk = []
     for arg in args:
-        print('hi',arg)
-
-    for a, b in itertools.combinations(args, 2):
-        print('hello?')
-        print(a.name,b.name)
+        idk.append(arg)
+    for a, b in itertools.combinations(idk[0], 2):
         checkcollision(a, b)
 
 
 def checkcollision(a: rps, b: rps):
+    print(a.name, b.name)
     if a.name == 'rock' and b.name == 'scissor':
         if abs(a.x - b.x) < collisionsize and abs(a.y - b.y) < collisionsize:
             print("rock and scissor collide")
             b.name = 'rock'
             b.filename = 'rock.jpg'
-
-
+    elif b.name == 'rock' and a.name == 'scissor':
+        if abs(a.x - b.x) < collisionsize and abs(a.y - b.y) < collisionsize:
+            print("rock and scissor collide")
+            a.name = 'rock'
+            a.filename = 'rock.jpg'
     elif a.name == 'rock' and b.name == 'paper':
         if abs(a.x - b.x) < collisionsize and abs(a.y - b.y) < collisionsize:
             print("rock and paper collide")
             a.name = 'paper'
             a.filename = 'paper.jpg'
-
-
+    elif b.name == 'rock' and a.name == 'paper':
+        if abs(a.x - b.x) < collisionsize and abs(a.y - b.y) < collisionsize:
+            print("rock and paper collide")
+            b.name = 'paper'
+            b.filename = 'paper.jpg'
     elif a.name == 'paper' and b.name == 'scissor':
         if abs(a.x - b.x) < collisionsize and abs(a.y - b.y) < collisionsize:
             print("paper and scissor collide")
             a.name = 'scissor'
             a.filename = 'scissor.jpg'
-
+    elif b.name == 'paper' and a.name == 'scissor':
+        if abs(a.x - b.x) < collisionsize and abs(a.y - b.y) < collisionsize:
+            print("paper and scissor collide")
+            b.name = 'scissor'
+            b.filename = 'scissor.jpg'
 
 
 fig, ax = plt.subplots(figsize=(10, 10))
@@ -125,31 +133,39 @@ rocklist = []
 paperlist = []
 scissorlist = []
 
-for i in range(num_of_pairs):
+
+for i in range(num_of_rock):
     rocklist.append(rps('rock'))
+for i in range(num_of_paper):
     paperlist.append(rps('paper'))
+for i in range(num_of_scissor):
     scissorlist.append(rps('scissor'))
 
-rbox = [0] * num_of_pairs
-sbox = [0] * num_of_pairs
-pbox = [0] * num_of_pairs
+
+rbox = [0] * num_of_rock
+pbox = [0] * num_of_paper
+sbox = [0] * num_of_scissor
 while True:
     allobj = []
-    for i in range(num_of_pairs):
+    for i in range(num_of_rock):
         rocklist[i].update()
-        paperlist[i].update()
-        scissorlist[i].update()
         allobj.append(rocklist[i])
-        allobj.append(paperlist[i])
-        allobj.append(scissorlist[i])
         rbox[i] = AnnotationBbox(OffsetImage(plt.imread(rocklist[i].filename), zoom=Zoom),
                                  (rocklist[i].x, rocklist[i].y), frameon=False)
+        ax.add_artist(rbox[i])
+
+    for i in range(num_of_paper):
+        paperlist[i].update()
+        allobj.append(paperlist[i])
         pbox[i] = AnnotationBbox(OffsetImage(plt.imread(paperlist[i].filename), zoom=Zoom),
                                  (paperlist[i].x, paperlist[i].y), frameon=False)
+        ax.add_artist(pbox[i])
+
+    for i in range(num_of_scissor):
+        scissorlist[i].update()
+        allobj.append(scissorlist[i])
         sbox[i] = AnnotationBbox(OffsetImage(plt.imread(scissorlist[i].filename), zoom=Zoom),
                                  (scissorlist[i].x, scissorlist[i].y), frameon=False)
-        ax.add_artist(rbox[i])
-        ax.add_artist(pbox[i])
         ax.add_artist(sbox[i])
 
     driver(allobj)
@@ -157,7 +173,9 @@ while True:
     plt.pause(0.01)
     plt.draw()
 
-    for i in range(num_of_pairs):
+    for i in range(num_of_rock):
         ax.artists.remove(rbox[i])
+    for i in range(num_of_paper):
         ax.artists.remove(pbox[i])
+    for i in range(num_of_scissor):
         ax.artists.remove(sbox[i])

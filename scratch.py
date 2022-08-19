@@ -16,10 +16,17 @@ for i in range(num_of_pairs):
     pbox[i] = 2
     sbox[i] = 3
 all = rbox+pbox+sbox
-print(all)
+
 
 def compare(a,b):
     print(a,b)
+def driver(*args):
+    d=[]
+    for arg in args:
+        d.append(arg)
+    print(d[0])
+    for a, b in itertools.combinations(c, 2):
+        compare(a, b)
 
-for a, b in itertools.combinations(all, 2):
-    compare(a, b)
+
+driver(all)
