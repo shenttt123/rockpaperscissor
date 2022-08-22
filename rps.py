@@ -18,9 +18,8 @@ Zoom = 0.08
 xlim = 100
 ylim = 100
 collisionsize = Zoom * xlim / 2
-winadjust = 0.035  # zoom out(1 + winadjust)%
+winadjust = 0.025  # zoom out(1 + winadjust)%
 dirrange = math.ceil(math.sqrt(((step * 1000) ** 2) / 2))
-
 rpsbox = []
 rpslist = []
 
@@ -72,21 +71,23 @@ class rps:
             if self.x >= xlim:
                 self.dir_x = -1 * random.randrange(1, dirrange)
                 self.dir_y = getanotherdirection(self.dir_x) * getcurrentsign(self.dir_y)
+                self.x = xlim
                 break
             if self.x < 0:
                 self.dir_x = random.randrange(1, dirrange)
                 self.dir_y = getanotherdirection(self.dir_x) * getcurrentsign(self.dir_y)
+                self.x = 0
                 break
             if self.y >= ylim:
                 self.dir_y = -1 * random.randrange(1, dirrange)
                 self.dir_x = getanotherdirection(self.dir_y) * getcurrentsign(self.dir_x)
+                self.y = ylim
                 break
             if self.y < 0:
                 self.dir_y = random.randrange(1, dirrange)
                 self.dir_x = getanotherdirection(self.dir_y) * getcurrentsign(self.dir_x)
+                self.y = 0
                 break
-            self.x += step * self.dir_x
-            self.y += step * self.dir_y
 
 
 def driver(allobjlist):
@@ -191,7 +192,7 @@ def submits(text):
 
 def submitspeed(text):
     global step, dirrange
-    step = float(text) / 1000
+    step = abs(float(text) / 1000)
     dirrange = math.ceil(math.sqrt(((step * 400) ** 2) / 2))
 
 
@@ -202,18 +203,15 @@ def updatetext(str):
 
 def click_exit(event):
     try:
-        os.system("taskkill /im rps.exe")
         exit()
+        os.system("taskkill /im rps.exe")
     except:
         exit()
 
 
-
-
-
 def start():
-    #fig.set_size_inches(204  / float(fig.get_dpi()), 204 / float(fig.get_dpi()))
-    fig, axes = plt.subplots(figsize=(8, 10))
+    # fig.set_size_inches(204  / float(fig.get_dpi()), 204 / float(fig.get_dpi()))
+    fig, axes = plt.subplots(figsize=(10, 10))
     plt.subplots_adjust(bottom=0.2)
     plt.xlim([0 - xlim * winadjust, xlim * (1 + winadjust)])
     plt.ylim([0 - ylim * winadjust, ylim * (1 + winadjust)])
@@ -236,6 +234,7 @@ def start():
 
     figure_canvas_agg = FigureCanvasTkAgg(fig, master=window['fig_cv'].TKCanvas)
     figure_canvas_agg.get_tk_widget().pack(side='right', fill='both', expand=1)
+
     while True:
 
         for i in range(len(rpslist)):
@@ -245,41 +244,38 @@ def start():
             axes.add_artist(rpsbox[i])
 
         driver(rpslist)
-        if num_of_rock == 0 and num_of_paper == 0 and num_of_scissor != 0:
-            plt.show(block=False)
-            plt.close(1)
-            break
-        if num_of_rock == 0 and num_of_paper != 0 and num_of_scissor == 0:
-            plt.show(block=False)
-            plt.close(1)
-            break
-        if num_of_rock != 0 and num_of_paper == 0 and num_of_scissor == 0:
-            plt.show(block=False)
-            plt.close(1)
-            break
+
         tx = fig.text(0.65, 0.1,
                       "number of rock is: {}\nnumber of paper is: {}\nnumber of scissor is: {}\ncurrent speed is: {}".format(
                           num_of_rock, num_of_paper, num_of_scissor, step * 1000), fontsize=10)
-        plt.pause(0.01)
         plt.draw()
+        fig.canvas.flush_events()
+        if num_of_rock == 0 and num_of_paper == 0 and num_of_scissor != 0:
+            break
+        if num_of_rock == 0 and num_of_paper != 0 and num_of_scissor == 0:
+            break
+        if num_of_rock != 0 and num_of_paper == 0 and num_of_scissor == 0:
+            break
         tx.remove()
+        rpsbox.clear()
         for i in range(len(rpsbox)):
             axes.artists.remove(rpsbox[i])
 
-        rpsbox.clear()
-
 
 def open_window():
-    layout = [[sg.Text(rpslist[0].name.capitalize()+" Win!", font = 20,key="new")]]
+    layout = [[sg.Text(rpslist[0].name.capitalize() + " Win!", font=20, key="new")], [sg.B('Restart', key='restart')]]
     window = sg.Window("Second Window", layout, modal=True)
     while True:
         event, values = window.read()
         if event == "Exit" or event == sg.WIN_CLOSED:
             try:
-                os.system("taskkill /im rps.exe")
                 exit()
+                os.system("taskkill /im rps.exe")
             except:
                 exit()
+        elif event == 'restart':
+            pass
+
 #############################
 layout = [
     [sg.Text('Please enter numbers of rock paper and scissor')],
@@ -288,7 +284,6 @@ layout = [
     [sg.Text('Scissor', size=(12, 2)), sg.InputText(size=3)],
     [sg.Submit('Start', key='start'), sg.Cancel()],
     [sg.Column(layout=[[sg.Canvas(key='fig_cv')]])]
-
 ]
 window = sg.Window("rock paper scissor", layout)
 
