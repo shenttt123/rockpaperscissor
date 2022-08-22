@@ -202,11 +202,13 @@ def updatetext(str):
 
 
 def click_exit(event):
+
     try:
-        exit()
+        quit()
+        print('hello')
         os.system("taskkill /im rps.exe")
     except:
-        exit()
+        quit()
 
 
 def start():
@@ -236,7 +238,6 @@ def start():
     figure_canvas_agg.get_tk_widget().pack(side='right', fill='both', expand=1)
 
     while True:
-
         for i in range(len(rpslist)):
             rpslist[i].update()
             rpsbox.append(AnnotationBbox(OffsetImage(plt.imread(rpslist[i].filename), zoom=Zoom),
@@ -250,16 +251,17 @@ def start():
                           num_of_rock, num_of_paper, num_of_scissor, step * 1000), fontsize=10)
         plt.draw()
         fig.canvas.flush_events()
+
+        tx.remove()
+        for i in range(len(rpsbox)):
+            axes.artists.remove(rpsbox[i])
+        rpsbox.clear()
         if num_of_rock == 0 and num_of_paper == 0 and num_of_scissor != 0:
             break
         if num_of_rock == 0 and num_of_paper != 0 and num_of_scissor == 0:
             break
         if num_of_rock != 0 and num_of_paper == 0 and num_of_scissor == 0:
             break
-        tx.remove()
-        rpsbox.clear()
-        for i in range(len(rpsbox)):
-            axes.artists.remove(rpsbox[i])
 
 
 def open_window():
@@ -267,14 +269,12 @@ def open_window():
     window = sg.Window("Second Window", layout, modal=True)
     while True:
         event, values = window.read()
-        if event == "Exit" or event == sg.WIN_CLOSED:
-            try:
-                exit()
-                os.system("taskkill /im rps.exe")
-            except:
-                exit()
+        if event == sg.WIN_CLOSED:
+            break
         elif event == 'restart':
-            pass
+            plt.close()
+            start()
+            break
 
 #############################
 layout = [

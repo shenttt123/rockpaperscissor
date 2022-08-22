@@ -19,7 +19,7 @@ layout = [
         ],
         background_color='#DAE0E6',
         pad=(0, 0)
-    )],
+    )],4
     [sg.B('Alive?')]
 ]
 
