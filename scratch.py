@@ -3,7 +3,7 @@ import PySimpleGUI as sg
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-
+from matplotlib.widgets import TextBox, Button
 
 layout = [
     [sg.T('Graph: y=sin(x)')],
@@ -24,28 +24,40 @@ layout = [
 ]
 
 window = sg.Window('Graph with controls', layout)
+fig, axes = plt.subplots(figsize=(10, 10))
+plt.title('y=sin(x)')
+plt.xlabel('X')
+plt.ylabel('Y')
+buttonlocation = plt.axes([0.9, 0.1, 0.05, 0.05])
+exit_button = Button(buttonlocation, 'exit')
 
-while True:
-    event, values = window.read()
-    print(event, values)
-    if event in (sg.WIN_CLOSED, 'Exit'):  # always,  always give a way out!
-        break
-    elif event == 'Plot':
+ce =False
+def click_exit(event):
+    global ce
+    plt.close()
+    print('hello???')
 
-        fig, axes = plt.subplots(figsize=(10, 10))
-        #plt.ion()
-        plt.title('y=sin(x)')
-        plt.xlabel('X')
-        plt.ylabel('Y')
-        figure_canvas_agg = FigureCanvasTkAgg(fig, master=window['fig_cv'].TKCanvas)
-        figure_canvas_agg.get_tk_widget().pack(side='right', fill='both', expand=1)
-        start = time.time()
-        while True:
-            x = np.linspace(0, time.time() - start)
-            y = np.sin(x)
-            plt.plot(x, y)
+    ce = False
+    start1()
 
-            fig.canvas.draw()
-            fig.canvas.flush_events()
+    return ce
 
-window.close()
+exit_button.on_clicked(click_exit)
+
+def start1():
+    while not ce:
+        event, values = window.read()
+        print(event, values)
+        if event in (sg.WIN_CLOSED, 'Exit'):  # always,  always give a way out!
+            break
+        elif event == 'Plot':
+            start = time.time()
+            while True:
+                x = np.linspace(0, time.time() - start)
+                y = np.sin(x)
+                plt.plot(x, y)
+                plt.draw()
+                plt.pause(0.01)
+    window.close()
+
+start1()

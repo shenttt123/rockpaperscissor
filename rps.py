@@ -193,7 +193,7 @@ def submits(text):
 def submitspeed(text):
     global step, dirrange
     step = abs(float(text) / 1000)
-    dirrange = math.ceil(math.sqrt(((step * 400) ** 2) / 2))
+    dirrange = math.ceil(math.sqrt(((step * 1000) ** 2) / 2))
 
 
 def updatetext(str):
