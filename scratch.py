@@ -19,7 +19,7 @@ layout = [
         ],
         background_color='#DAE0E6',
         pad=(0, 0)
-    )],4
+    )],
     [sg.B('Alive?')]
 ]
 
@@ -37,8 +37,6 @@ while True:
         plt.title('y=sin(x)')
         plt.xlabel('X')
         plt.ylabel('Y')
-
-
         figure_canvas_agg = FigureCanvasTkAgg(fig, master=window['fig_cv'].TKCanvas)
         figure_canvas_agg.get_tk_widget().pack(side='right', fill='both', expand=1)
         start = time.time()
@@ -46,7 +44,7 @@ while True:
             x = np.linspace(0, time.time() - start)
             y = np.sin(x)
             plt.plot(x, y)
-            plt.draw()
+
             fig.canvas.draw()
             fig.canvas.flush_events()
 

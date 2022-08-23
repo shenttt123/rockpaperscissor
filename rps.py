@@ -202,16 +202,22 @@ def updatetext(str):
 
 
 def click_exit(event):
-
     try:
-        quit()
+
         print('hello')
+
+        exit()
+
         os.system("taskkill /im rps.exe")
     except:
         quit()
 
 
 def start():
+    if window['fig_cv'].TKCanvas.children:
+        for child in window['fig_cv'].TKCanvas.winfo_children():
+            print(child)
+            child.destroy()
     # fig.set_size_inches(204  / float(fig.get_dpi()), 204 / float(fig.get_dpi()))
     fig, axes = plt.subplots(figsize=(10, 10))
     plt.subplots_adjust(bottom=0.2)
@@ -233,9 +239,17 @@ def start():
     stext_box.on_submit(submits)
     speedtext_box.on_submit(submitspeed)
     exit_button.on_clicked(click_exit)
-
+    window['column'].update(visible=True)
     figure_canvas_agg = FigureCanvasTkAgg(fig, master=window['fig_cv'].TKCanvas)
     figure_canvas_agg.get_tk_widget().pack(side='right', fill='both', expand=1)
+
+    rpslist.clear()
+    for i in range(num_of_rock):
+        rpslist.append(rps('rock'))
+    for i in range(num_of_paper):
+        rpslist.append(rps('paper'))
+    for i in range(num_of_scissor):
+        rpslist.append(rps('scissor'))
 
     while True:
         for i in range(len(rpslist)):
@@ -264,17 +278,16 @@ def start():
             break
 
 
-def open_window():
+def finished_window():
     layout = [[sg.Text(rpslist[0].name.capitalize() + " Win!", font=20, key="new")], [sg.B('Restart', key='restart')]]
     window = sg.Window("Second Window", layout, modal=True)
     while True:
         event, values = window.read()
-        if event == sg.WIN_CLOSED:
+        if event == sg.WIN_CLOSED or event == 'restart':
+            window.close()
+            plt.clf()
             break
-        elif event == 'restart':
-            plt.close()
-            start()
-            break
+
 
 #############################
 layout = [
@@ -282,27 +295,22 @@ layout = [
     [sg.Text('Rock', size=(12, 2)), sg.InputText(size=3)],
     [sg.Text('Paper', size=(12, 2)), sg.InputText(size=3)],
     [sg.Text('Scissor', size=(12, 2)), sg.InputText(size=3)],
-    [sg.Submit('Start', key='start'), sg.Cancel()],
-    [sg.Column(layout=[[sg.Canvas(key='fig_cv')]])]
+    [sg.Submit('Start', key='start'), sg.Cancel('Exit')],
+    [sg.pin(sg.Column(layout=[[sg.Canvas(key='fig_cv')]],key='column',visible=False))]
 ]
 window = sg.Window("rock paper scissor", layout)
 
 while True:
     event, values = window.read()
+
     if event == 'start':
         num_of_rock = int(values[0])
         num_of_paper = int(values[1])
         num_of_scissor = int(values[2])
-        for i in range(num_of_rock):
-            rpslist.append(rps('rock'))
-        for i in range(num_of_paper):
-            rpslist.append(rps('paper'))
-        for i in range(num_of_scissor):
-            rpslist.append(rps('scissor'))
         start()
-        open_window()
-
-    elif event == sg.WIN_CLOSED:
+        finished_window()
+        window['column'].update(visible=False)
+    elif event == sg.WIN_CLOSED or event == 'cancel':
         break
 
 window.close()
